@@ -66,3 +66,21 @@ certs:
     subjectKeyIdentifier: hash
     keyUsage: [digitalSignature, keyEncipherment]
     extendedKeyUsage: [serverAuth, clientAuth]
+
+- name: 'ocsp_responder.crt'
+  description: Certificate and key for the OCSP responder
+  Subject:
+    CN: 'localhost'
+    C: US
+    ST: NY
+    L: OCSP-3
+  Issuer: 'ca_ocsp.pem'
+  include_header: false
+  keyfile: 'ocsp_responder.key'
+  # Generation fails without this seemingly redundant output_path
+  output_path: '../drivers-evergreen-tools/.evergreen/ocsp/'
+  extensions:
+    basicConstraints: {CA: false}
+    keyUsage: [nonRepudiation, digitalSignature, keyEncipherment]
+    extendedKeyUsage: [OCSPSigning]
+    #noCheck: true
