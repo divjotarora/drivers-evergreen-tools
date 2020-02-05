@@ -84,3 +84,26 @@ certs:
     keyUsage: [nonRepudiation, digitalSignature, keyEncipherment]
     extendedKeyUsage: [OCSPSigning]
     #noCheck: true
+
+###
+# ECDSA tree
+###
+
+# These are all special cases handled internally by mkcert.py
+# Do NOT change the names
+
+- name: 'ecdsa-ca-ocsp.pem'
+  description: Root of ECDSA tree for OCSP testing.
+  Issuer: self
+
+- name: 'ecdsa-server-ocsp.pem'
+  description: ECDSA server certificate w/OCSP for ECDSA tree.
+  Issuer: 'ecdsa-ca-ocsp.pem'
+
+- name: 'ecdsa-server-ocsp-mustStaple.pem'
+  description: ECDSA server certificate w/OCSP + must-staple
+  Issuer: 'ecdsa-ca-ocsp.pem'
+
+- name: 'ecdsa-ocsp-responder.crt'
+  description: ECDSA certificate and key for OCSP responder
+  Issuer: 'ecdsa-ca-ocsp.pem'
