@@ -93,11 +93,11 @@ certs:
 # Do NOT change the names
 
 - name: 'ecdsa-ca-ocsp.pem'
-  description: Root of ECDSA tree for OCSP testing.
+  description: Root of ECDSA tree for OCSP testing
   Issuer: self
 
 - name: 'ecdsa-server-ocsp.pem'
-  description: ECDSA server certificate w/OCSP for ECDSA tree.
+  description: ECDSA server certificate w/OCSP
   Issuer: 'ecdsa-ca-ocsp.pem'
 
 - name: 'ecdsa-server-ocsp-mustStaple.pem'
