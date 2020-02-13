@@ -78,7 +78,7 @@ certs:
   include_header: false
   keyfile: 'ocsp-responder.key'
   # Generation fails without this seemingly redundant output_path
-  output_path: '../drivers-evergreen-tools/.evergreen/ocsp/'
+  output_path: '../drivers-evergreen-tools/.evergreen/ocsp/rsa'
   extensions:
     basicConstraints: {CA: false}
     keyUsage: [nonRepudiation, digitalSignature, keyEncipherment]
