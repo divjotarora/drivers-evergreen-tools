@@ -620,7 +620,7 @@ def _handle_status_post():
     request body.
     """
     ocsp_request = responder.parse_ocsp_request(request.data)
-    return responder.build_ocsp_http_response(ocsp_request)
+    return responder.build_http_response(ocsp_request)
 
 @app.route('/set_fault', methods=['POST'])
 def _handle_fault_post():
