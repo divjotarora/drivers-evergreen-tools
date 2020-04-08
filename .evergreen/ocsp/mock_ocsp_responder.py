@@ -48,6 +48,7 @@ import re
 import enum
 import sys
 import textwrap
+import json
 from datetime import datetime, timezone, timedelta
 from typing import Callable, Tuple, Optional
 
@@ -576,6 +577,14 @@ class OCSPResponder:
         resp.headers['content_type'] = 'application/ocsp-response'
         return resp
 
+    def set_fault(self, fault: str):
+        response = ''
+        response_code = 200
+        if fault == FAULT_REVOKED or fault == FAULT_UNKNOWN or fault is None:
+            self._fault = fault
+            return
+        raise ValueError(f'Unknown fault {fault}. Valid options are {FAULT_REVOKED} and {FAULT_UNKNOWN}')
+
 
 responder = None
 
@@ -593,7 +602,7 @@ def _handle_root():
 
 @app.route('/status/', defaults={'u_path': ''}, methods=['GET'])
 @app.route('/status/<path:u_path>', methods=['GET'])
-def _handle_get(u_path):
+def _handle_status_get(u_path):
     global responder
     """
     An OCSP GET request contains the DER-in-base64 encoded OCSP request in the
@@ -604,11 +613,37 @@ def _handle_get(u_path):
     return responder.build_http_response(ocsp_request)
 
 @app.route('/status', methods=['POST'])
-def _handle_post():
+def _handle_status_post():
     global responder
     """
     An OCSP POST request contains the DER encoded OCSP request in the HTTP
     request body.
     """
     ocsp_request = responder.parse_ocsp_request(request.data)
-    return responder.build_http_response(ocsp_request)
+    return responder.build_ocsp_http_response(ocsp_request)
+
+@app.route('/set_fault', methods=['POST'])
+def _handle_fault_post():
+    global app, responder
+    """
+    A set_fault POST request contains the new fault in the HTTP request body. Valid values are "revoked", "unknown",
+    and "". A value of "" indicates that there should be no fault set so future OCSP requests will return
+    CertificateStatus.good.
+    """
+    response = {}
+    response_code = 200
+    try:
+        fault = ''
+        if 'fault' in request.json:
+            fault = request.json['fault']
+        if fault == '':
+            fault = None
+
+        responder.set_fault(fault)
+    except ValueError as e:
+        response = {
+            'errmsg': str(e),
+        }
+        response_code = 400
+    response_json = json.dumps(response)
+    return app.make_response((response_json, response_code))
