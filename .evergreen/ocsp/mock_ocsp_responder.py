@@ -630,7 +630,7 @@ def _handle_fault_post():
     and "". A value of "" indicates that there should be no fault set so future OCSP requests will return
     CertificateStatus.good.
     """
-    response = {}
+    response = ''
     response_code = 200
     try:
         fault = ''
@@ -641,9 +641,7 @@ def _handle_fault_post():
 
         responder.set_fault(fault)
     except ValueError as e:
-        response = {
-            'errmsg': str(e),
-        }
+        response = str(e)
         response_code = 400
     response_json = json.dumps(response)
     return app.make_response((response_json, response_code))
