@@ -32,7 +32,17 @@ EOF_HAPROXY_CONFIG
 
   cat $DRIVERS_TOOLS/haproxy.conf
 
-  haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid
+  /usr/sbin/haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid
+
+  ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
+  SINGLE_MONGOS_LB_URI="$ADDRESS:8000"
+  MULTI_MONGOS_LB_URI="$ADDRESS:8001"
+
+  echo "Single Mongos LB: $SINGLE_MONGOS_LB_URI"
+  echo "Multiple Mongos LB: $MULTI_MONGOS_LB_URI"
+
+  export SINGLE_MONGOS_LB_URI="$SINGLE_MONGOS_LB_URI"
+  export MULTI_MONGOS_LB_URI="$MULTI_MONGOS_LB_URI"
 }
 
 stop() {
