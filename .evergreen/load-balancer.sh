@@ -16,21 +16,23 @@ start() {
       bind *:8000
       use_backend mongos_backend
 
+  frontend mongoses_frontend
+      bind *:8001
+      use_backend mongoses_backend
+
   backend mongos_backend
       mode tcp
-      server mongos_one 127.0.0.1:27017 check
-EOF_HAPROXY_CONFIG
+      server mongos 127.0.0.1:27017 check
 
-  if [ "$LOAD_BALANCER_MONGOSES" = "2" ]
-  then
-    cat <<EOF_HAPROXY_CONFIG >> $DRIVERS_TOOLS/haproxy.conf
-        server mongos_two 127.0.0.1:27018 check
+  backend mongoses_backend
+      mode tcp
+      server mongos_one 127.0.0.1:27017 check
+      server mongos_two 127.0.0.1:27018 check
 EOF_HAPROXY_CONFIG
-  fi
 
   cat $DRIVERS_TOOLS/haproxy.conf
 
-  haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid &
+  haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid
 }
 
 stop() {
