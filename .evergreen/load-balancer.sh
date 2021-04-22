@@ -60,8 +60,8 @@ EOF_HAPROXY_CONFIG
 
   /usr/sbin/haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p $DRIVERS_TOOLS/haproxy.pid
 
-  echo 'SINGLE_MONGOS_LB_URI: "'$SINGLE_MONGOS_LB_URI'"' > $DRIVERS_TOOLS/lb-expansion.yml
-  echo 'MULTI_MONGOS_LB_URI: "'$MULTI_MONGOS_LB_URI'"' >> $DRIVERS_TOOLS/lb-expansion.yml
+  echo 'SINGLE_MONGOS_LB_URI: "'$SINGLE_MONGOS_LB_URI'"' > lb-expansion.yml
+  echo 'MULTI_MONGOS_LB_URI: "'$MULTI_MONGOS_LB_URI'"' >> lb-expansion.yml
 
   export SINGLE_MONGOS_LB_URI="$SINGLE_MONGOS_LB_URI"
   export MULTI_MONGOS_LB_URI="$MULTI_MONGOS_LB_URI"
