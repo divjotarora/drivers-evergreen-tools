@@ -30,16 +30,35 @@ start() {
       server mongos_two 127.0.0.1:27018 check
 EOF_HAPROXY_CONFIG
 
-  cat $DRIVERS_TOOLS/haproxy.conf
+  PREFIX=$(echo $MONGODB_URI | grep -Eo "(.*?)@")
+  SUFFIX=$(echo $MONGODB_URI | grep -Eo "\?(.*)")
 
-  /usr/sbin/haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid
+  if [ PREFIX = "" ]
+  then
+    # No auth then just set the URI
+    SINGLE_MONGOS_LB_URI="mongodb://127.0.0.1:8000"
+    MULTI_MONGOS_LB_URI="mongodb://127.0.0.1:8001"
+  else
+    # We have auth so append the lb host:port
+    SINGLE_MONGOS_LB_URI="${PREFIX}127.0.0.1:8000"
+    MULTI_MONGOS_LB_URI="${PREFIX}127.0.0.1:8001"
+  fi
 
-  ADDRESS=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
-  SINGLE_MONGOS_LB_URI="$ADDRESS:8000"
-  MULTI_MONGOS_LB_URI="$ADDRESS:8001"
+  if [ SUFFIX = "" ]
+  then
+    # If there are no query params then add only the load balanced option.
+    SINGLE_MONGOS_LB_URI="${SINGLE_MONGOS_LB_URI}?loadBalanced=true"
+    MULTI_MONGOS_LB_URI="${MULTI_MONGOS_LB_URI}?loadBalanced=true"
+  else
+    # If there are query params then append the load balanced option to them.
+    SINGLE_MONGOS_LB_URI="${SINGLE_MONGOS_LB_URI}${SUFFIX}&loadBalanced=true"
+    MULTI_MONGOS_LB_URI="${MULTI_MONGOS_LB_URI}${SUFFIX}&loadBalanced=true"
+  fi
 
   echo "Single Mongos LB: $SINGLE_MONGOS_LB_URI"
   echo "Multiple Mongos LB: $MULTI_MONGOS_LB_URI"
+
+  /usr/sbin/haproxy -D -f $DRIVERS_TOOLS/haproxy.conf -p ./haproxy.pid
 
   export SINGLE_MONGOS_LB_URI="$SINGLE_MONGOS_LB_URI"
   export MULTI_MONGOS_LB_URI="$MULTI_MONGOS_LB_URI"
